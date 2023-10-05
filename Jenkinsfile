@@ -34,7 +34,7 @@ pipeline {
                   echo `Push image ...`
                   docker push ${REPOSITORY_TAG}
                   echo `Done pushing image ...`
-                  echo `Start removing image ...`
+                  echo `Start removing image ...1.`
                   docker image rm ${REPOSITORY_TAG}
                   echo `Done removing image!`
                '''
