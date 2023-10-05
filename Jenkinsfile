@@ -7,6 +7,7 @@ pipeline {
      // YOUR_DOCKERHUB_USERNAME (it doesn't matter if you don't have one)
 
      SERVICE_NAME = "fleetman-position-tracker"
+     SERVICE_NAME_INFRA = "fleetman-position-tracker-infra"
      REPOSITORY_TAG="${YOUR_DOCKERHUB_USERNAME}/${ORGANIZATION_NAME}-${SERVICE_NAME}:${BUILD_ID}"
    }
 
@@ -32,10 +33,20 @@ pipeline {
                   docker image build -t ${REPOSITORY_TAG} .
                   echo `Push image ...`
                   docker push ${REPOSITORY_TAG}
-                  echo `Done pushing image ..11..`
+                  echo `Done pushing image ...`
+                  echo `Start removing image ...`
+                  docker image rm ${REPOSITORY_TAG}
+                  echo `Done removing image!`
                '''
             }
            
+         }
+      }
+
+      stage('Prepare to update infra') {
+         steps {
+            cleanWs()
+            git credentialsId: 'GitHub', url: "https://github.com/${ORGANIZATION_NAME}/${SERVICE_NAME_INFRA}"
          }
       }
 
@@ -120,7 +131,7 @@ pipeline {
                           echo "${GITHUB_TOKEN}"
                           export BUILD_ID=${BUILD_ID}
                           git add kustomization.yaml && git commit -m "Update app image tag to ${BUILD_ID}"
-                          git push -f https://${GITHUB_TOKEN}@github.com/magiclab396-global/fleetman-position-tracker.git 
+                          git push -f https://${GITHUB_TOKEN}@github.com/magiclab396-global/fleetman-position-tracker-infra.git 
                       '''
                   }
           }
